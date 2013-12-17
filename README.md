@@ -6,3 +6,4 @@
 
 * [split](http://hackage.haskell.org/package/split-0.2.1.1)
 * [pandoc](http://hackage.haskell.org/package/pandoc-1.12.2.1)
+* [yaml](http://hackage.haskell.org/package/yaml-0.8.5)
