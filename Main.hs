@@ -17,8 +17,9 @@ main :: IO ()
 main = do
   [filename] <- getArgs
   contents <- readFile filename
-  let slides = splitOn "\n--\n\n" contents
-  let html = map markdownToHtml slides -- might only want to do (tail slides)
+  -- the first "slide" is always metadata
+  let (metadata:slides) = splitOn "\n--\n\n" contents
+  let html = map markdownToHtml slides
   _ <- mapM (\s -> putStrLn $ "line: " ++ s) html -- prints for debugging
   -- writeFile outputFilename html
   putStrLn "Heaver is done."
