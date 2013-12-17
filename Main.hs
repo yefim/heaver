@@ -17,7 +17,7 @@ main :: IO ()
 main = do
   [filename] <- getArgs
   contents <- readFile filename
-  -- the first "slide" is always metadata
+  -- the first "slide" is always metadata in YAML
   let (metadata:slides) = splitOn "\n--\n\n" contents
   let html = map markdownToHtml slides
   _ <- mapM (\s -> putStrLn $ "line: " ++ s) html -- prints for debugging
