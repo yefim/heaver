@@ -6,6 +6,9 @@
 
 module Main where
 import Prelude
+import System.Environment
 
 main :: IO ()
-main = putStrLn "Hello, Heaver"
+main = do
+  [file] <- getArgs  
+  putStrLn file
