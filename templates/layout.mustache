@@ -1,198 +1,174 @@
+<!doctype html>
 <html>
-<head>
-  <title>{{title}}</title>
-  <style type="text/css">
-    body {
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      color: #444;
-      background-color: #aaa;
-    }
-    
-    #wrapper {
-      width: 850px;
-      height: 600px;
-      overflow: hidden;
-      margin: 80px auto 0 auto;
-      box-shadow: 3px 3px 3px #666;
-      background-color: #eee;
-    }
-    
-    .slide {
-      width: auto;
-      height: 540px;
-      padding: 30px;
-      font-weight: 200;
-      font-size: 32px;
-      line-height: 44px;
-    }
-    
-    #controls {
-      width: 850px;
-      margin: -60px auto 0 auto;
-    }
-    
-    #controls div {
-      width: 50px;
-      height: 50px;
-      padding: 5px 50px;
-      font-size: 36px;
-      background-color: #ccc;
-    }
-    
-    #controls div:hover {
-      background-color: #bbb;
-      cursor: pointer;
-    }
-    
-    #controls #prev {
-      float: left;
-      -webkit-border-top-right-radius: 20px;
-      -moz-border-radius-topright: 20px;
-      border-top-right-radius: 20px;
-    }
-    
-    #controls #next {
-      float: right;
-      text-align: right;
-      -webkit-border-top-left-radius: 20px;
-      -moz-border-radius-topleft: 20px;
-      border-top-left-radius: 20px;
-    }
-    
-    .slide h1 {
-      font-size: 100px;
-      text-align: center;
-      margin-top: 200px;
-      margin-bottom: 30px;
-    }
-    
-    .slide h2 {
-      font-size: 30px;
-      text-align: center;
-      font-weight: 200;
-    }
-    
-    .slide h3 {
-      font-size: 45px;
-      border-bottom: 1px solid #aaa;
-      margin: 0;
-      padding-bottom: 15px;
-    }
-    
-    .slide ul {
-      padding: 20px 0 0 60px;
-      font-weight: 200;
-      font-size: 32px;
-      line-height: 44px;
-    }
-    
-    .slide .author h1.name {
-      font-size: 55px;
-      font-weight: 200;
-      text-align: center;
-      margin-top: 185px;
-      margin-bottom: 30px;
-    }
-    
-    .slide .author h3 {
-      font-weight: 100;
-      text-align: center;
-      font-size: 30px;
-      border: none;
-    }
-    
-    a {
-      text-decoration: none;
-      color: #44a4dd;
-    }
-    
-    a:hover {
-      color: #66b5ff;
-    }
-    
-    code {
-      background-color: #ccc;
-    }
-    
-    pre > code {
-      background-color: inherit;
-      font-size: 60%;
-      line-height: 1.3;
-    }
-    
-    .hidden {
-      display: none;
-    }
-  </style>
-</head>
-<body>
-  <div id="wrapper">
-    {{#slides}}
-      <section class="slide">{{{.}}}</section>
-    {{/slides}}
-  </div>
-  {{#controls}}
-    <div id="controls">
-      <div id="prev">&larr;</div>
-      <div id="next">&rarr;</div>
-    </div>
-  {{/controls}}
-  <script type="text/javascript">
-    /**
-     * Takes the last slide and places it at the front.
-     */
-    function goBack() {
-      var wrapper = document.querySelector('#wrapper');
-      var lastSlide = wrapper.lastChild;
-      while (lastSlide != null && lastSlide.nodeType !== 1) {
-        lastSlide = lastSlide.previousSibling;
+  <head>
+    <meta charset="{{encoding}}">
+    <title>{{title}}</title>
+    <style type="text/css">
+      body {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        color: #222;
+        background-color: #f7f7f7;
       }
-    
-      wrapper.removeChild(lastSlide);
-      wrapper.insertBefore(lastSlide, wrapper.firstChild);
-    }
-    
-    /**
-     * Takes the first slide and places it at the end.
-     */
-    function goForward() {
-      var wrapper = document.querySelector('#wrapper');
-      var firstSlide = wrapper.firstChild;
-      while (firstSlide != null && firstSlide.nodeType !== 1) {
-        firstSlide = firstSlide.nextSibling;
+
+      #wrapper {
+        width: 850px;
+        height: 600px;
+        overflow: hidden;
+        margin: 80px auto 0 auto;
       }
-    
-      wrapper.removeChild(firstSlide);
-      wrapper.appendChild(firstSlide);
-    }
-    
-    window.onload = function () {
-    
-      document.onkeydown = function (e) {
-        var kc = e.keyCode;
-    
-        // left, down, H, J, backspace - BACK
-        // up, right, K, L, space, enter - FORWARD
-        if (kc == 37 || kc == 40 || kc == 8 || kc == 72 || kc == 74) {
-          goBack();
-        } else if (kc == 38 || kc == 39 || kc == 13 || kc == 32 || kc == 75 || kc == 76) {
-          goForward();
-        }
+
+      /* styles for print layout */
+      #wrapper.nohide {
+        overflow: auto;
+        height: auto;
+        box-shadow: none;
       }
-    
-      if (document.querySelector('#next') && document.querySelector('#prev')) {
-        document.querySelector('#next').onclick = function (e) {
-          e.preventDefault();
-          goForward();
-        }
-    
-        document.querySelector('#prev').onclick = function (e) {
-          e.preventDefault();
-          goBack();
-        }
+
+      #wrapper.nohide .slide {
+        margin-bottom: 30px;
       }
-    
-    }
-  </script>
-</body>
+      /* /styles */
+
+      .slide {
+        width: auto;
+        height: 540px;
+        padding: 30px;
+        font-weight: 200;
+        font-size: 32px;
+        line-height: 44px;
+      }
+
+      .controls {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+      }
+
+      .controls .arrow {
+        width: 0; height: 0;
+        border: 30px solid #333;
+        float: left;
+        margin-right: 30px;
+
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      .controls .prev {
+        border-top-color: transparent;
+        border-bottom-color: transparent;
+        border-left-color: transparent;
+
+        border-left-width: 0;
+        border-right-width: 50px;
+      }
+
+      .controls .next {
+        border-top-color: transparent;
+        border-bottom-color: transparent;
+        border-right-color: transparent;
+
+        border-left-width: 50px;
+        border-right-width: 0;
+      }
+
+      .controls .prev:hover {
+        border-right-color: #888;
+        cursor: pointer;
+      }
+
+      .controls .next:hover {
+        border-left-color: #888;
+        cursor: pointer;
+      }
+
+      .slide h1 {
+        font-size: 100px;
+        line-height: 1.2;
+        text-align: center;
+        margin: 140px 0 0;
+      }
+
+      .slide h2 {
+        font-size: 30px;
+        line-height: 1.2;
+        margin: 5px 0;
+        text-align: center;
+        font-weight: 200;
+      }
+
+      .slide h3 {
+        font-size: 45px;
+        line-height: 1.2;
+        border-bottom: 1px solid #aaa;
+        margin: 0;
+        padding-bottom: 15px;
+      }
+
+      .slide ul {
+        padding: 20px 0 0 60px;
+        font-weight: 200;
+        font-size: 32px;
+        line-height: 44px;
+      }
+
+      .slide .author h1.name {
+        font-size: 55px;
+        font-weight: 200;
+        text-align: center;
+        margin-top: 185px;
+        margin-bottom: 30px;
+      }
+
+      .slide .author h3 {
+        font-weight: 100;
+        text-align: center;
+        font-size: 30px;
+        border: none;
+      }
+
+      a {
+        text-decoration: none;
+        color: #44a4dd;
+      }
+
+      a:hover {
+        color: #66b5ff;
+      }
+
+      code {
+        background-color: #ccc;
+      }
+
+      pre > code {
+        background-color: inherit;
+        font-size: 60%;
+        line-height: 1.3;
+      }
+
+      .progress {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+      }
+
+      .progress-bar {
+        width: 0%;
+        height: 3px;
+        background-color: #b4b4b4;
+
+        -webkit-transition: width 0.1s ease-out;
+        -moz-transition: width 0.1s ease-out;
+        -o-transition: width 0.1s ease-out;
+        transition: width 0.1s ease-out;
+      }
+    </style>
+  </head>
+  <body>
+    {{{slideshow}}}
+  </body>
 </html>

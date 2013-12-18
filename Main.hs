@@ -11,18 +11,22 @@ import Data.List.Split
 import Text.Pandoc
 import Data.Yaml.YamlLight
 import Data.ByteString.Char8 (pack, unpack)
--- import Data.Maybe
--- import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as LZ
 import qualified Data.ByteString.Lazy.Char8 as LZC
 import Data.Data 
 import Text.Hastache
 import Text.Hastache.Context
 
+data Layout = Layout {
+  slideshow :: String,
+  title :: String,
+  encoding :: String
+} deriving (Data, Typeable)
+
 data Slideshow = Slideshow {
   slides :: [String],
-  title :: String,
-  controls :: Bool
+  controls :: Bool,
+  progress :: Bool
 } deriving (Data, Typeable)
 
 data Author = Author {
@@ -46,11 +50,25 @@ lookupYLBool k y = case lookupYLString k y of
                       "true" -> True
                       _      -> False
 
-authorSlide :: Maybe YamlLight -> IO LZC.ByteString
-authorSlide Nothing  = return LZC.empty
-authorSlide (Just a) = do
+renderAuthorSlide :: Maybe YamlLight -> IO LZC.ByteString
+renderAuthorSlide Nothing  = return LZC.empty
+renderAuthorSlide (Just a) = do
   let context = mkGenericContext $ Author (lookupYLString "name" a) (lookupYLString "twitter" a) (lookupYLString "url" a)
   hastacheFile defaultConfig "templates/author.mustache" context
+
+renderSlideshow :: YamlLight -> [String] -> IO LZC.ByteString
+renderSlideshow m s =
+  let c = lookupYLBool "controls" m in
+  let p = lookupYLBool "progress" m in
+  let sc = mkGenericContext $ Slideshow s c p in
+  hastacheFile defaultConfig "templates/default.mustache" sc
+
+renderOutput :: YamlLight -> String -> IO LZC.ByteString
+renderOutput m s =
+  let t = lookupYLString "title" m in
+  let e = lookupYLString "encoding" m in
+  let oc = mkGenericContext $ Layout s t e in
+  hastacheFile defaultConfig "templates/layout.mustache" oc
 
 stringToList :: LZC.ByteString -> [String]
 stringToList s | LZC.null s = []
@@ -63,15 +81,13 @@ main = do
   let (y:s) = splitOn "\n--\n" contents
   metadata <- parseYaml y
 
-  a <- authorSlide $ lookupYL (YStr $ pack "author") metadata
+  a <- renderAuthorSlide $ lookupYL (YStr $ pack "author") metadata
   let html = map markdownToHtml s ++ stringToList a
 
-  let t = lookupYLString "title" metadata
-  let c = lookupYLBool "controls" metadata
-  let f = lookupYLString "output" metadata
+  sw <- renderSlideshow metadata html
 
-  let context = mkGenericContext $ Slideshow html t c
-  o <- hastacheFile defaultConfig "templates/layout.mustache" context
-  LZ.writeFile f o
+  let f = lookupYLString "output" metadata
+  output <- renderOutput metadata $ LZC.unpack sw
+  LZ.writeFile f output
 
   putStrLn "Heaver is done."

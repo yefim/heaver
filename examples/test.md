@@ -5,6 +5,7 @@ author:
   url: http://yef.im
 output: out.html
 controls: true
+progress: true
 
 --
 
