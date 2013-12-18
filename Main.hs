@@ -52,9 +52,12 @@ lookupYLBool k y = case lookupYLString k y of
 
 renderAuthorSlide :: Maybe YamlLight -> IO LZC.ByteString
 renderAuthorSlide Nothing  = return LZC.empty
-renderAuthorSlide (Just a) = do
-  let context = mkGenericContext $ Author (lookupYLString "name" a) (lookupYLString "twitter" a) (lookupYLString "url" a)
-  hastacheFile defaultConfig "templates/author.mustache" context
+renderAuthorSlide (Just a) =
+  let n = lookupYLString "name" a in
+  let t = lookupYLString "twitter" a in
+  let u = lookupYLString "url" a in
+  let ac = mkGenericContext $ Author n t u in
+  hastacheFile defaultConfig "templates/author.mustache" ac
 
 renderSlideshow :: YamlLight -> [String] -> IO LZC.ByteString
 renderSlideshow m s =
