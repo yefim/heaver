@@ -23,7 +23,11 @@ markdownToHtml = writeHtmlString def . readMarkdown def
 template :: String
 template = "{{#slides}}\n{{{ . }}}\n{{/slides}}"
 
-data Slides = Slides { slides :: [String] } deriving (Data, Typeable)
+data Slideshow = Slideshow {
+  slides :: [String],
+  title :: String,
+  controls :: Bool
+} deriving (Data, Typeable)
 
 main :: IO ()
 main = do
@@ -33,7 +37,7 @@ main = do
   let html = map markdownToHtml s
   metadata <- parseYaml y
 
-  let context = mkGenericContext $ Slides html
+  let context = mkGenericContext $ Slideshow html "" False
   o <- hastacheStr defaultConfig (encodeStr template) context
   LZ.writeFile "out.html" o
 
