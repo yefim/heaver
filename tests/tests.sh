@@ -28,7 +28,7 @@ else
   echo Test 2 Failed
 fi
 
-rm examples/test.md.heaver test-cleaver.html
+# rm examples/test.md.heaver test-cleaver.html
 
 echo ""
 
