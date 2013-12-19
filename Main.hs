@@ -18,6 +18,7 @@ import Data.Data
 import Text.Hastache
 import Text.Hastache.Context
 import OurStache
+import ParserCombinators
 
 data Layout = Layout {
   slideshow :: String,
@@ -62,19 +63,23 @@ lookupYLBool k y = case lookupYLString k y of
                       "true" -> True
                       _      -> False
 
-renderAuthorSlide :: Maybe YamlLight -> IO LZC.ByteString
-renderAuthorSlide Nothing  = return LZC.empty
-renderAuthorSlide (Just a) =
+-- renderAuthorSlide :: Maybe YamlLight -> IO LZC.ByteString
+renderAuthorSlide :: Maybe YamlLight -> Either ParseError Expr -> String
+renderAuthorSlide (Just a) (Right e) =
   let n = lookupYLString "name" a in
   let t = lookupYLString "twitter" a in
   let u = lookupYLString "url" a in
-  {-
+  let m = lookupYLString "email" a in
   let ac = buildCtx [("name", Single $ StringVal n),
                      ("twitter", Single $ StringVal t),
-                     ("url", Single $ StringVal u)] in
-  -}
+                     ("url", Single $ StringVal u),
+                     ("email", Single $ StringVal m)] in
+  pp e ac
+renderAuthorSlide _  _ = ""
+  {-
   let ac = mkGenericContext $ Author n t u in
   hastacheFile defaultConfig "templates/author.mustache" ac
+  -}
 
 renderSlideshow :: YamlLight -> [String] -> IO LZC.ByteString
 renderSlideshow m s =
@@ -100,9 +105,15 @@ renderOutput m s =
   let oc = mkGenericContext $ Layout s t e in
   hastacheFile defaultConfig "templates/layout.mustache" oc
 
+{-
 stringToList :: LZC.ByteString -> [String]
 stringToList s | LZC.null s = []
                | otherwise  = [LZC.unpack s]
+-}
+
+stringToList :: String -> [String]
+stringToList "" = []
+stringToList s  = [s]
 
 main :: IO ()
 main = do
@@ -111,9 +122,12 @@ main = do
   let (y:s) = splitOn "\n--\n" contents
   metadata <- parseYaml y
 
-  a <- renderAuthorSlide $ lookupYL (YStr $ pack "author") metadata
+  ap <- parseFromFile stacheP "templates/author.mustache"
+  print ap
+  let a = renderAuthorSlide (lookupYL (YStr $ pack "author") metadata) ap
   let html = map markdownToHtml s ++ stringToList a
 
+  -- swp <- parseFromFile stacheP "templates/default.mustache"
   sw <- renderSlideshow metadata html
 
   let f = lookupYLStringWithDefault (filename ++ ".heaver") "output" metadata
