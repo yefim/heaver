@@ -11,7 +11,7 @@ progress: true
 
 --
 
-## Quick Start
+### Quick Start
 
 Compile the binary:
 
@@ -23,7 +23,7 @@ And run it like so:
 
 --
 
-## Options
+### Options
 
     title: Basic Example
     author:
@@ -39,11 +39,13 @@ Heaver supports several basic options that allow you to further customize the lo
 
 --
 
-## Overview
+### Overview
+
+* `Main.hs` is the most important file. The `main` function in `Main.hs` runs whenever Heaver is called. `main` reads the Markdown file, slices it up into slides, renders the author slide, renders the other slides, and outputs them into a slideshow.
 
 --
 
-## Dependencies
+### Dependencies
 
 * [split](http://hackage.haskell.org/package/split-0.2.1.1)
 * [pandoc](http://hackage.haskell.org/package/pandoc-1.12.2.1)
@@ -52,7 +54,7 @@ Heaver supports several basic options that allow you to further customize the lo
 
 --
 
-## Contributors
+### Contributors
 
 * Lewis Ellis (ellisl)
 * Geoffrey Vedernikoff (veg)
