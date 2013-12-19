@@ -1,13 +1,15 @@
-output: readme.html
 progress: true
+controls: true
+encoding: utf-8
+title: README
 
 --
 
 # Heaver
 
-## (inspired by [Cleaver](http://jdan.github.io/cleaver))
+## inspired by Cleaver
 
-## 30-second Slideshows for Hackers.
+## Thirty second Slideshows for Hackers
 
 --
 

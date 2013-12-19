@@ -46,12 +46,15 @@ t0 = TestList [markdownToHtml "# test" ~?= "<h1 id=\"test\">test</h1>",
                markdownToHtml "" ~?= "",
                markdownToHtml "[link](example.com)" ~?= "<p><a href=\"example.com\">link</a></p>"]
 
+lookupYLStringWithDefault :: String -> String -> YamlLight -> String
+lookupYLStringWithDefault d k y = case lookupYL (YStr $ pack k) y of
+                         Just v -> case unStr v of
+                           Just b -> unpack b
+                           _      -> d
+                         _      -> d
+
 lookupYLString :: String -> YamlLight -> String
-lookupYLString k y = case lookupYL (YStr $ pack k) y of
-                       Just v -> case unStr v of
-                         Just b -> unpack b
-                         _      -> ""
-                       _      -> ""
+lookupYLString = lookupYLStringWithDefault ""
 
 lookupYLBool :: String -> YamlLight -> Bool
 lookupYLBool k y = case lookupYLString k y of
@@ -97,7 +100,7 @@ main = do
 
   sw <- renderSlideshow metadata html
 
-  let f = lookupYLString "output" metadata
+  let f = lookupYLStringWithDefault (filename ++ ".heaver") "output" metadata
   output <- renderOutput metadata $ LZC.unpack sw
   LZ.writeFile f output
 

@@ -1,9 +1,10 @@
 title: Basic Example
 author:
   name: Geoffrey Vedernikoff
-  twitter: yefim
   url: http://yef.im
-output: basic.html
+encoding: utf-8
+progress: true
+controls: true
 
 --
 

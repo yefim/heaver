@@ -1,9 +1,7 @@
 title: Basic Example
 author:
-  name: Geoff
-  twitter: yefim
+  name: Geoffrey Vedernikoff
   url: http://yef.im
-output: out.html
 controls: true
 progress: true
 encoding: utf-8

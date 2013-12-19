@@ -6,7 +6,8 @@
 
 <div id="wrapper">
   {{#slides}}
-    <section class="slide">{{{.}}}</section>
+    <section class="slide">{{{.}}}
+    </section>
   {{/slides}}
 </div>
 {{#controls}}
@@ -23,7 +24,7 @@
 function goBack() {
   var wrapper = document.querySelector('#wrapper');
   var lastSlide = wrapper.lastChild;
-  while (lastSlide != null && lastSlide.nodeType !== 1) {
+  while (lastSlide !== null && lastSlide.nodeType !== 1) {
     lastSlide = lastSlide.previousSibling;
   }
 
@@ -32,6 +33,7 @@ function goBack() {
 
   setCurrentProgress();
   updateURL();
+  updateTabIndex();
 }
 
 /**
@@ -40,7 +42,7 @@ function goBack() {
 function goForward() {
   var wrapper = document.querySelector('#wrapper');
   var firstSlide = wrapper.firstChild;
-  while (firstSlide != null && firstSlide.nodeType !== 1) {
+  while (firstSlide !== null && firstSlide.nodeType !== 1) {
     firstSlide = firstSlide.nextSibling;
   }
 
@@ -49,6 +51,7 @@ function goForward() {
 
   setCurrentProgress();
   updateURL();
+  updateTabIndex();
 }
 
 /**
@@ -95,7 +98,7 @@ function setCurrentProgress() {
 
   if (progressBar !== null) {
     var pagesNumber    = wrapper.querySelectorAll('section').length;
-    var currentNumber  = parseInt(currentPage());
+    var currentNumber  = parseInt(currentPage(), 10);
     var currentPercent = pagesNumber === 1 ? 100 : 100 * currentNumber / (pagesNumber - 1);
     progressBar.style.width = currentPercent.toString() + '%';
   }
@@ -112,9 +115,28 @@ function goToPage(page) {
   if (targetSlide) {
     var numSlides = allSlides().length;
 
-    for (var i = 0; currentPage() != page && i < numSlides; i++) {
+    for (var i = 0; currentPage() !== page && i < numSlides; i++) {
       goForward();
     }
+  }
+}
+
+/**
+ * Removes tabindex property from all links on the current slide, sets
+ * tabindex = -1 for all links on other slides. Prevents slides from appearing
+ * out of control.
+ */
+function updateTabIndex() {
+  var allLinks = document.querySelectorAll('.slide a');
+  var currentPageLinks = document.querySelector('.slide').querySelectorAll('a');
+  var i;
+
+  for (i = 0; i < allLinks.length; i++) {
+    allLinks[i].setAttribute('tabindex', -1);
+  }
+
+  for (i = 0; i < currentPageLinks.length; i++) {
+    allLinks[i].removeAttribute('tabindex');
   }
 }
 
@@ -123,33 +145,40 @@ window.onload = function () {
   // Give each slide a "page" data attribute.
   setPageNumbers();
 
+  // Update the tabindex to prevent weird slide transitioning
+  updateTabIndex();
+
   // If the location hash specifies a page number, go to it.
   var page = window.location.hash.slice(1);
-  if (page) goToPage(page);
+  if (page) {
+    goToPage(page);
+  }
 
   document.onkeydown = function (e) {
     var kc = e.keyCode;
 
-    // left, down, H, J, backspace - BACK
-    // up, right, K, L, space, enter - FORWARD
-    if (kc == 37 || kc == 40 || kc == 8 || kc == 72 || kc == 74) {
+    // left, down, H, J, backspace, PgUp - BACK
+    // up, right, K, L, space, enter, PgDn - FORWARD
+    if (kc === 37 || kc === 40 || kc === 8 || kc === 72 || kc === 74 || kc === 33) {
       goBack();
-    } else if (kc == 38 || kc == 39 || kc == 13 || kc == 32 || kc == 75 || kc == 76) {
+    } else if (kc === 38 || kc === 39 || kc === 13 || kc === 32 || kc === 75 || kc === 76 || kc === 34) {
       goForward();
     }
-  }
+  };
 
   if (document.querySelector('.next') && document.querySelector('.prev')) {
     document.querySelector('.next').onclick = function (e) {
       e.preventDefault();
       goForward();
-    }
+    };
 
     document.querySelector('.prev').onclick = function (e) {
       e.preventDefault();
       goBack();
-    }
+    };
   }
 
-}
-</script>
+};
+
+
+  </script>
