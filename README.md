@@ -47,6 +47,7 @@ Heaver supports several basic options that allow you to further customize the lo
 
 ### Dependencies
 
+* [HUnit](http://hackage.haskell.org/package/HUnit-1.2.5.1)
 * [split](http://hackage.haskell.org/package/split-0.2.1.1)
 * [pandoc](http://hackage.haskell.org/package/pandoc-1.12.2.1)
 * [yaml-light](http://hackage.haskell.org/package/yaml-light-0.1.4)

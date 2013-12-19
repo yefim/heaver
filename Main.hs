@@ -6,6 +6,7 @@
 
 module Main where
 import Prelude
+import Test.HUnit
 import System.Environment
 import Data.List.Split
 import Text.Pandoc
@@ -37,6 +38,13 @@ data Author = Author {
 
 markdownToHtml :: String -> String
 markdownToHtml = writeHtmlString def . readMarkdown def
+
+t0 :: Test
+t0 = TestList [markdownToHtml "# test" ~?= "<h1 id=\"test\">test</h1>",
+               markdownToHtml "paragraph" ~?= "<p>paragraph</p>",
+               markdownToHtml "* test" ~?= "<ul>\n<li>test</li>\n</ul>",
+               markdownToHtml "" ~?= "",
+               markdownToHtml "[link](example.com)" ~?= "<p><a href=\"example.com\">link</a></p>"]
 
 lookupYLString :: String -> YamlLight -> String
 lookupYLString k y = case lookupYL (YStr $ pack k) y of
