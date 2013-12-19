@@ -126,14 +126,23 @@ emCtx :: Context
 exCtx :: Context
 emCtx = buildCtx []
 exCtx = buildCtx [("hi", Single (StringVal "sup")),
-                       ("wat", Single (IntVal 37)),
-                       ("l", List [(StringVal "one"), (StringVal "two")]),
-                       ("n", None)]
+                  ("html", Single (StringVal "<html>")),
+                  ("wat", Single (IntVal 37)),
+                  ("l", List [(StringVal "one"), (StringVal "two")]),
+                  ("n", None)]
 
 -- put some tests here with emCtx/exCtx
 -- use function at bottom to help generate Expr ASTs
 printerTest :: Test
-printerTest = TestList []
+printerTest = TestList [pp (Plain "hi") emCtx ~?= "hi",
+                        pp (Var "hi") emCtx ~?= "",
+                        pp (Var "hi") exCtx ~?= "sup",
+                        pp (Var "wat") exCtx ~?= "37",
+                        pp (Var "n") exCtx ~?= "",
+                        pp (VarE "html") exCtx ~?= "&lt;html&gt;",
+                        pp (Append (Var "hi") (Plain " guys")) exCtx ~?= "sup guys",
+                        pp (Control "l" Dot) emCtx ~?= "",
+                        pp (Control "l" (Append (Plain "hi") Dot)) exCtx ~?= "hionehitwo"]
 
 
 -- Now begins the parsing.
@@ -145,7 +154,7 @@ closeP = liftM2 seq (string "/") varNameP
 controlP :: Parser Char Expr
 controlP = liftM3 (\var subExpr _ -> Control var subExpr)
                   (doubleWrap openP)
-                  exprP
+                  stacheP
                   (doubleWrap closeP)
 
 dotP :: Parser Char Expr
@@ -180,7 +189,7 @@ varNameP = liftM2 (\f r -> f:r) alpha alphaNums
 -- first character being { is okay
 -- but then stop whenever you find a second {
 plainP :: Parser Char Expr
-plainP = liftM2 (\f r -> Plain (f:r)) get (many (satisfy (/= '{')))
+plainP = liftM2 (\f r -> Plain (f:r)) get (many1 (satisfy (/= '{')))
 
 spaceWrap :: Parser Char b -> Parser Char b
 spaceWrap p = between spaces p spaces
@@ -215,9 +224,12 @@ pt s e = doParse stacheP s ~?= [(e, "")]
 
 parserTest :: Test
 parserTest = TestList [pt "{{#d}}hi{{/d}}" (Control "d" (Plain "hi")),
-                       pt "{{{abc }}}" (Var "abc")]
--- add more tests here
-
+                       pt "{{{abc }}}" (Var "abc"),
+                       pt "{{ abc }}" (VarE "abc"),
+                       pt "{{  . }}" DotE,
+                       pt "{{{.}}}" Dot,
+                       pt "{{abc }}} " (Append (VarE "abc") (Plain "} ")),
+                       pt "{{a}} hi {{{b}}} sup { {{#c}}{{{.}}}{{/c}} end" (Append (VarE "a") (Append (Plain " hi ") (Append (Var "b") (Append (Plain " sup ") (Append (Plain "{ ") (Append (Control "c" Dot) (Plain " end")))))))]
 
 {-
 main :: IO ()
