@@ -8,17 +8,14 @@ controls: true
 progress: true
 
 --
-
 ## this is the first slide
 
     this is some code
 
 --
-
 ## this is the second
 
 --
-
 ## This is the last slide
 
 * list item 1
