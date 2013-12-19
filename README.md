@@ -7,7 +7,7 @@ progress: true
 
 ## (inspired by [Cleaver](http://jdan.github.io/cleaver))
 
-30-second Slideshows for Hackers.
+## 30-second Slideshows for Hackers.
 
 --
 
