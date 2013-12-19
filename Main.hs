@@ -17,6 +17,7 @@ import qualified Data.ByteString.Lazy.Char8 as LZC
 import Data.Data 
 import Text.Hastache
 import Text.Hastache.Context
+import OurStache
 
 data Layout = Layout {
   slideshow :: String,
@@ -67,6 +68,11 @@ renderAuthorSlide (Just a) =
   let n = lookupYLString "name" a in
   let t = lookupYLString "twitter" a in
   let u = lookupYLString "url" a in
+  {-
+  let ac = buildCtx [("name", Single $ StringVal n),
+                     ("twitter", Single $ StringVal t),
+                     ("url", Single $ StringVal u)] in
+  -}
   let ac = mkGenericContext $ Author n t u in
   hastacheFile defaultConfig "templates/author.mustache" ac
 
@@ -74,6 +80,11 @@ renderSlideshow :: YamlLight -> [String] -> IO LZC.ByteString
 renderSlideshow m s =
   let c = lookupYLBool "controls" m in
   let p = lookupYLBool "progress" m in
+  {-
+  let sc = buildCtx [("slides", List $ map StringVal s),
+                     ("controls", Single $ BoolVal c),
+                     ("progress", Single $ BoolVal p)] in
+  -}
   let sc = mkGenericContext $ Slideshow s c p in
   hastacheFile defaultConfig "templates/default.mustache" sc
 
@@ -81,6 +92,11 @@ renderOutput :: YamlLight -> String -> IO LZC.ByteString
 renderOutput m s =
   let t = lookupYLString "title" m in
   let e = lookupYLString "encoding" m in
+  {-
+  let oc = buildCtx [("slideshow", Single $ StringVal s),
+                     ("title", Single $ StringVal t),
+                     ("encoding", Single $ StringVal e)] in
+  -}
   let oc = mkGenericContext $ Layout s t e in
   hastacheFile defaultConfig "templates/layout.mustache" oc
 

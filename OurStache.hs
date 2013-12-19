@@ -219,8 +219,9 @@ parserTest = TestList [pt "{{#d}}hi{{/d}}" (Control "d" (Plain "hi")),
 -- add more tests here
 
 
-
+{-
 main :: IO ()
 main = do 
    _ <- runTestTT $ TestList [printerTest, parserTest]
    return ()
+-}
