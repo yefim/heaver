@@ -6,6 +6,7 @@ author:
 output: out.html
 controls: true
 progress: true
+encoding: utf-8
 
 --
 ## this is the first slide
