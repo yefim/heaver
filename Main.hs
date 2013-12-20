@@ -12,31 +12,9 @@ import Data.List.Split
 import Text.Pandoc
 import Data.Yaml.YamlLight
 import Data.ByteString.Char8 (pack, unpack)
--- import qualified Data.ByteString.Lazy as LZ
-import qualified Data.ByteString.Lazy.Char8 as LZC
-import Text.Hastache
-import Text.Hastache.Context
 import Data.Data 
 import OurStache
 import ParserCombinators
-
-data Layout = Layout {
-  slideshow :: String,
-  title :: String,
-  encoding :: String
-} deriving (Data, Typeable)
-
-data Slideshow = Slideshow {
-  slides :: [String],
-  controls :: Bool,
-  progress :: Bool
-} deriving (Data, Typeable)
-
-data Author = Author {
-  name :: String,
-  twitter :: String,
-  url :: String
-} deriving (Data, Typeable)
 
 markdownToHtml :: String -> String
 markdownToHtml = writeHtmlString def . readMarkdown def
@@ -63,7 +41,6 @@ lookupYLBool k y = case lookupYLString k y of
                       "true" -> True
                       _      -> False
 
--- renderAuthorSlide :: Maybe YamlLight -> IO LZC.ByteString
 renderAuthorSlide :: Maybe YamlLight -> Either ParseError Expr -> String
 renderAuthorSlide (Just a) (Right e) =
   let n = lookupYLString "name" a in
@@ -76,10 +53,6 @@ renderAuthorSlide (Just a) (Right e) =
                      ("email", Single $ StringVal m)] in
   pp e ac
 renderAuthorSlide _  _ = ""
-  {-
-  let ac = mkGenericContext $ Author n t u in
-  hastacheFile defaultConfig "templates/author.mustache" ac
-  -}
 
 renderSlideshow :: YamlLight -> [String] -> Either ParseError Expr-> String
 renderSlideshow m s (Right e) =
@@ -89,29 +62,17 @@ renderSlideshow m s (Right e) =
                      ("controls", Single $ BoolVal c),
                      ("progress", Single $ BoolVal p)] in
   pp e sc
-  -- let sc = mkGenericContext $ Slideshow s c p in
-  -- hastacheFile defaultConfig "templates/default.mustache" sc
 renderSlideshow _ _ _ = ""
 
-renderOutput :: YamlLight -> String -> IO LZC.ByteString
-renderOutput m s =
+renderOutput :: YamlLight -> String -> Either ParseError Expr -> String
+renderOutput m s (Right e) =
   let t = lookupYLString "title" m in
   let c = lookupYLString "encoding" m in
-  {-
   let oc = buildCtx [("slideshow", Single $ StringVal s),
                      ("title", Single $ StringVal t),
                      ("encoding", Single $ StringVal c)] in
-  -}
-  let oc = mkGenericContext $ Layout s t c in
-  hastacheFile defaultConfig "templates/layout.mustache" oc
-  -- pp e oc
--- renderOutput _ _ _ = ""
-
-{-
-stringToList :: LZC.ByteString -> [String]
-stringToList s | LZC.null s = []
-               | otherwise  = [LZC.unpack s]
--}
+  pp e oc
+renderOutput _ _ _ = ""
 
 stringToList :: String -> [String]
 stringToList "" = []
@@ -132,8 +93,8 @@ main = do
   let sw = renderSlideshow metadata html swp
 
   let f = lookupYLStringWithDefault (filename ++ ".heaver") "output" metadata
-  -- op <- parseFromFile stacheP "templates/default.mustache"
-  o <- renderOutput metadata sw
-  LZC.writeFile f o
+  op <- parseFromFile stacheP "templates/layout.mustache"
+  let o = renderOutput metadata sw op
+  writeFile f o
 
   putStrLn "Heaver is done."
