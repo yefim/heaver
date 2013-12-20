@@ -77,7 +77,7 @@ getCtx :: Variable -> Context -> ContextValue
 getCtx v c = Map.findWithDefault None v (vars c)
 
 showCtx :: Variable -> Context -> String
-showCtx v c = case (getCtx v c) of
+showCtx v c = case getCtx v c of
                 Single val -> showValue val
                 List l -> concatMap showValue l
                 None -> ""
@@ -115,9 +115,9 @@ pp (Var v) c = showCtx v c
 pp (VarE v) c = escapeHtml $ showCtx v c
 pp (Dot) c = showValue $ ctl c
 pp (DotE) c = escapeHtml . showValue $ ctl c
-pp (Control v e) c = case (getCtx v c) of
+pp (Control v e) c = case getCtx v c of
                        Single val -> pp e (setCtl c val) -- display e
-                       List l -> concatMap (\val -> pp e $ setCtl c val) l -- loop e over l
+                       List l -> concatMap (pp e . setCtl c) l -- loop e over l
                        None -> "" -- hide block
 pp (Append e1 e2) c = pp e1 c ++ pp e2 c
 
@@ -128,7 +128,7 @@ emCtx = buildCtx []
 exCtx = buildCtx [("hi", Single (StringVal "sup")),
                   ("html", Single (StringVal "<html>")),
                   ("wat", Single (IntVal 37)),
-                  ("l", List [(StringVal "one"), (StringVal "two")]),
+                  ("l", List [StringVal "one", StringVal "two"]),
                   ("n", None)]
 
 -- put some tests here with emCtx/exCtx
@@ -184,7 +184,7 @@ tripleClose = string "}}}"
 
 --1 alpha, then 0 or more alphanums - standard naming restriction
 varNameP :: Parser Char String
-varNameP = liftM2 (\f r -> f:r) alpha alphaNums
+varNameP = liftM2 (:) alpha alphaNums
 
 -- first character being { is okay
 -- but then stop whenever you find a second {
@@ -210,7 +210,7 @@ exprP = choice [tripleBP, controlP, doubleBP, plainP]
 
 -- Chain exprP together with Append to create the fulltext parser
 stacheP :: Parser Char Expr
-stacheP = (liftM2 Append exprP stacheP) <|> exprP
+stacheP = liftM2 Append exprP stacheP <|> exprP
 
 
 -- Extracts the Expr from a parse, assuming it works
@@ -230,10 +230,3 @@ parserTest = TestList [pt "{{#d}}hi{{/d}}" (Control "d" (Plain "hi")),
                        pt "{{{.}}}" Dot,
                        pt "{{abc }}} " (Append (VarE "abc") (Plain "} ")),
                        pt "{{a}} hi {{{b}}} sup { {{#c}}{{{.}}}{{/c}} end" (Append (VarE "a") (Append (Plain " hi ") (Append (Var "b") (Append (Plain " sup ") (Append (Plain "{ ") (Append (Control "c" Dot) (Plain " end")))))))]
-
-{-
-main :: IO ()
-main = do 
-   _ <- runTestTT $ TestList [printerTest, parserTest]
-   return ()
--}

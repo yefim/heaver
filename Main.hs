@@ -12,7 +12,6 @@ import Data.List.Split
 import Text.Pandoc
 import Data.Yaml.YamlLight
 import Data.ByteString.Char8 (pack, unpack)
-import Data.Data 
 import OurStache
 import ParserCombinators
 
